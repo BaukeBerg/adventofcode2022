@@ -2,6 +2,8 @@
 
 #include "FileUtility.h"
 
+#include <numeric>
+
 class TestAssignment1 : public TAdventClass
 {
 
@@ -18,12 +20,12 @@ TEST_F(TestAssignment1, TestDayOne)
     }
     else
     {
-      CaloryList.at(CaloryList.size() - 1) += StringToInt<wxInt32>(Line);
-    }    
+      CaloryList.back() += StringToInt<wxInt32>(Line);
+    }
   }
   ASSERT_LE(3, CaloryList.size()) << "Error while filling array";
   CaloryList.Sort();
   auto Amount = CaloryList.size();
   EXPECT_EQ(71506, RecordProperty("Max: ", CaloryList.back()));
-  EXPECT_EQ(209603, RecordProperty("Max 3: ", CaloryList.at(Amount-1) + CaloryList.at(Amount-2) + CaloryList.at(Amount-3)));    
+  EXPECT_EQ(209603, RecordProperty("Max 3: ", std::accumulate(CaloryList.end()-3, CaloryList.end(), 0)));
 }
