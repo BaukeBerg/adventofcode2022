@@ -55,8 +55,8 @@ TEST_F(TestAssignment2, TestDayTwo)
       if (Input.StartsWith("A")) { return 8; }
       if (Input.StartsWith("B")) { return 9; }
       return 7;
-
     }
+    return 0;
   };
 
   wxInt32 TotalScore = 0;
