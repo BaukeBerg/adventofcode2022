@@ -23,7 +23,7 @@ TEST_F(TestAssignment1, TestDayOne)
       CaloryList.back() += StringToInt<wxInt32>(Line);
     }
   }
-  ASSERT_LE(3, CaloryList.size()) << "Error while filling array";
+  ASSERT_LE(3U, CaloryList.size()) << "Error while filling array";
   CaloryList.Sort();
   auto Amount = CaloryList.size();
   EXPECT_EQ(71506, RecordProperty("Max: ", CaloryList.back()));
