@@ -25,9 +25,8 @@ TEST_F(TestAssignment3, TestDayThree)
   for (auto& Item : AllData)
   {
     for (auto Index = 0U; ; ++Index)
-    {
-      auto FoundPos = Item.find_last_of(Item.at(Index));
-      if (Index < FoundPos && (FoundPos >= Item.Len() >> 1))
+    { 
+      if ((Item.length() >> 1) <= Item.find_last_of(Item.at(Index)))
       {
         CommonItem.push_back(Item.at(Index).GetValue());
         break;
@@ -46,23 +45,17 @@ TEST_F(TestAssignment3, TestPartTwo)
     GroupInfo.push_back({ AllInfo.at(Index), AllInfo.at(Index + 1), AllInfo.at(Index + 2) });
   }
 
-  auto FindCommons = [](TCVector<wxString> GroupInfo) {
-    for (auto Index = 0U; ; ++Index) {
-      auto Char = GroupInfo[0][Index];
-      if ((wxNOT_FOUND != GroupInfo[1].find(Char))
-        && (wxNOT_FOUND != GroupInfo[2].find(Char)))
-      {
-        return Char.GetValue();
-      }
-    }
-    return 0U;
-  };
-
   TCVector<wxInt32> Badges;
   for (auto& Group : GroupInfo)
   {
-    Badges.push_back(FindCommons(Group));
-  }
-  
+    for (auto& Char : Group[0])
+    {
+      if ((wxNOT_FOUND != Group[1].find(Char)) && (wxNOT_FOUND != Group[2].find(Char)))
+      {
+        Badges.push_back(Char.GetValue());
+        break;
+      }
+    }
+  }  
   EXPECT_EQ(2633, RecordProperty("Sum of badges: ", SumIt(Badges)));
 }
