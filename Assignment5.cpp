@@ -10,31 +10,32 @@ class TestAssignment5 : public TAdventClass
 
 TEST_F(TestAssignment5, TestDayFive)
 {
-  TCVector<wxString> StackInput =
-  {
-    {"NBDTVGZJ"},
-    {"SRMDWPF"},
-    {"VCRSZ"},
-    {"RTJZPHG"},
-    {"TCJNDZQF"},
-    {"NVPWGSFM"},
-    {"GCVBPQ"},
-    {"ZBPN"},
-    {"WPJ"}
-  };
+  TCVector<wxString> StackInput(9, "");
 
   auto SlowStacks = StackInput;
   auto QuickStacks = StackInput;
 
-  bool StackFilled = false;
+  bool FillingStack = true;
   for (auto& Line : ReadFileLines(RealInput(), true))
   {
     if (Line.IsEmpty())
     {
-      StackFilled = true;
+      FillingStack = false;
+      SlowStacks = QuickStacks = StackInput;
       continue;
     }
-    if (StackFilled)
+    if (FillingStack)
+    {
+      for (auto Iterator = 1; Iterator < Line.length(); Iterator += 4)
+      {
+        auto Index = Iterator >> 2;
+        if (InLimits<char>('A', Line.at(Iterator).GetValue(), 'Z'))
+        {
+          StackInput.at(Index) = Line.at(Iterator) + StackInput.at(Index);
+        }
+      }
+    }
+    else
     {
       auto FromTo = Split(Line, "f");
       auto SourceDest = Split(FromTo[1], "t");
@@ -45,7 +46,8 @@ TEST_F(TestAssignment5, TestDayFive)
       auto Process = [&](TCVector<wxString>* List, bool IsSlow)
       {
         auto Length = IsSlow ? 1 : Amount;
-        for (auto Moved = 0; Moved < Amount && IsSlow; ++Moved)
+        Amount = IsSlow ? Amount : 1;
+        for (auto Moved = 0; Moved < Amount; ++Moved)
         {
           auto SourceString = List->at(Source - 1);
           auto LastChar = SourceString.substr(SourceString.Len() - Length);
@@ -57,6 +59,7 @@ TEST_F(TestAssignment5, TestDayFive)
       Process(&SlowStacks, true);
       Process(&QuickStacks, false);
     }
+
   }
   auto Phrase = [](const TCVector<wxString>& List)
   {
