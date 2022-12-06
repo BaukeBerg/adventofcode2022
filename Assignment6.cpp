@@ -3,6 +3,8 @@
 #include "FileUtility.h"
 #include "LimitFunctions.h"
 
+#include <set>
+
 class TestAssignment6 : public TAdventClass
 {
 
@@ -12,15 +14,8 @@ TEST_F(TestAssignment6, TestDaySix)
 {
   wxString Processed = "";
   auto LookingForFirst = true;
-  auto IsUnique = [](const wxString& Item) {
-    for (auto Iterator = 0U; Iterator < Item.Len(); ++Iterator)
-    {
-      if (wxNOT_FOUND  != Item.find(Item.at(Iterator), Iterator + 1))
-      {
-        return false;
-      }
-    }
-    return true;
+  auto IsUnique = [](wxString Item) {
+    return Item.size() == std::set<wxUniCharRef>(Item.begin(), Item.end()).size();
   };
     
   for (auto& Content : ReadFile(RealInput()))
