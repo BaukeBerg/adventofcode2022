@@ -13,10 +13,9 @@ TEST_F(TestAssignment6, TestDaySix)
   wxString Processed = "";
   auto LookingForFirst = true;
   auto IsUnique = [](const wxString& Item) {
-    for (auto Iterator = 0; Iterator < Item.Len(); ++Iterator)
+    for (auto Iterator = 0U; Iterator < Item.Len(); ++Iterator)
     {
-      wxInt32 Index = Item.find(Item.at(Iterator), Iterator + 1);
-      if (wxNOT_FOUND  != Index)
+      if (wxNOT_FOUND  != Item.find(Item.at(Iterator), Iterator + 1))
       {
         return false;
       }
@@ -35,13 +34,13 @@ TEST_F(TestAssignment6, TestDaySix)
     auto LastFourTeen = Processed.substr(Processed.Len() - 14);
     if (IsUnique(LastFour) && LookingForFirst)
     {
-      RecordProperty("Chars: ", Processed.Len());
+      EXPECT_EQ(1929, RecordProperty("Chars: ", Processed.Len()));
       RecordProperty("Marker 4: ", LastFour);
       LookingForFirst = false;
     }
     if (IsUnique(LastFourTeen))
     {
-      RecordProperty("Chars: ", Processed.Len());
+      EXPECT_EQ(3298, RecordProperty("Chars: ", Processed.Len()));
       RecordProperty("Marker 14:", LastFourTeen);
       return;
     }
