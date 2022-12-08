@@ -26,7 +26,7 @@ TEST_F(TestAssignment5, TestDayFive)
     }
     if (FillingStack)
     {
-      for (auto Iterator = 1; Iterator < Line.length(); Iterator += 4)
+      for (auto Iterator = 1U; Iterator < Line.length(); Iterator += 4)
       {
         auto Index = Iterator >> 2;
         if (InLimits<char>('A', Line.at(Iterator).GetValue(), 'Z'))

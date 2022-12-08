@@ -52,7 +52,6 @@ TEST_F(TestAssignment7, TestDaySeven)
 
   auto Input = ReadFileLines(RealInput());
   TCVector<TDirectory*> Stack;
-  auto FileMode = false;
 
   for (auto& Line : Input)
   {
@@ -66,11 +65,11 @@ TEST_F(TestAssignment7, TestDaySeven)
     }
     else if (Line.StartsWith("$ cd"))
     {
-      Stack.push_back(Stack.back()->Directories.Add(new TDirectory(Line.substr(5))));
+      Stack.push_back(Stack.back()->Directories.Add(new TDirectory(Stack.back()->Name + "." + Line.substr(5))));
     }
     else if (Line.StartsWith("$ ls"))
     {
-      FileMode = true;
+      continue;
     }
     else if (Line.StartsWith("dir"))
     {
