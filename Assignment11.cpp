@@ -69,18 +69,7 @@ TEST_F(TestAssignment11, TestDayEleven)
       TCVector<TItemInfo> UpdatedWorryLevel;
       for (auto& Item : Items->at(Index))
       {
-        auto Value = Item.Level;
-        //if (Index != (Real ? 6 : 2))
-        {
-          Value = DoOperation(Value % Divider);          
-        }
-        Value = Value / 3;
-        auto Target = ((Value % Divider) == 0LL) ? TargetTrue : TargetFalse;
-        if (Value < 0)
-        {
-          TLogError("Overflow");
-        }
-        UpdatedWorryLevel.push_back({ Value, Target });
+        UpdatedWorryLevel.push_back(PerformActions(Item.Level));
         ++InspectionCycles;
       }
       Items->at(Index).clear();
@@ -90,18 +79,39 @@ TEST_F(TestAssignment11, TestDayEleven)
       }      
     }
 
-    wxInt64 DoOperation(wxInt64 Value) {
+    TItemInfo PerformActions(wxInt64 Value) const
+    {
+      //if (Index != (Real ? 6 : 2))
+      {
+        Value = DoOperation(Value);
+      }
+      Value = Value / 3;
+      auto Target = ((Value % Divider) == 0LL) ? TargetTrue : TargetFalse;
+      if (Value < 0)
+      {
+        TLogError("Overflow");
+      }
+      return { Value, Target };
+    }
+    
+
+    wxInt64 DoOperation(wxInt64 Value) const 
+    {
       switch (Index)
       {
-      case 0: return Real ? (Value * 7LL) : (Value * 19LL);
-      case 1: return Real ? (Value * 11LL) : (Value + 6LL);
-      case 2: return Real ? (Value + 8LL) : (Value * Value);
-      case 3: return Real ? (Value + 7LL) : (Value + 3LL);
+      case 0: return Real() ? (Value * 7LL) : (Value * 19LL);
+      case 1: return Real() ? (Value * 11LL) : (Value + 6LL);
+      case 2: return Real() ? (Value + 8LL) : (Value * Value);
+      case 3: return Real() ? (Value + 7LL) : (Value + 3LL);
       case 4: return (Value + 5LL);
       case 5: return (Value + 4LL);
       case 6: return (Value * Value);
       case 7: return (Value + 3LL);
       }
+    }
+
+    bool Real(void) const {
+      return Items->size() > 4;
     }
 
     wxString AsString(void) const
@@ -114,7 +124,6 @@ TEST_F(TestAssignment11, TestDayEleven)
       ReturnValue.RemoveLast(2);
       return ReturnValue + "}";
     }
-    bool Real = false;
     wxInt64 Divider;
     wxString Operation;
     TCVector<TCVector<TItemInfo>>* Items;
@@ -126,7 +135,7 @@ TEST_F(TestAssignment11, TestDayEleven)
 
   TCVector<TMonkey> Monkeys;
   TCVector<TCVector<TItemInfo>> ItemList;
-  auto Input = ReadFileLines(MiniInput());
+  auto Input = ReadFileLines(RealInput());
   for (auto& Line : Input)
   {
     if (Line.StartsWith("Monkey"))
@@ -144,7 +153,7 @@ TEST_F(TestAssignment11, TestDayEleven)
     RecordProperty(Monkey.AsString());
   }
 
-  for (auto Iterator = 0; 1000 > Iterator; ++Iterator)
+  for (auto Iterator = 0; 20 > Iterator; ++Iterator)
   {
     for (auto& Monkey : Monkeys)
     {
@@ -157,7 +166,6 @@ TEST_F(TestAssignment11, TestDayEleven)
 
   }
   TCVector<wxInt64> Cycles;
-  TCVector<wxInt64> Expected = { 5204,4792,199,5192 };
   for (auto& Monkey : Monkeys)
   {
     Cycles.push_back(RecordProperty("Cycles: ", Monkey.InspectionCycles));
@@ -167,5 +175,5 @@ TEST_F(TestAssignment11, TestDayEleven)
   }
   Cycles.Sort();
   auto Value = Cycles.at(Cycles.size()-1) * Cycles.at(Cycles.size()-2);
-  EXPECT_EQ(2713310158, RecordProperty("CycleValue: ", Value));
+  EXPECT_EQ(54752, RecordProperty("CycleValue: ", Value));
 }
