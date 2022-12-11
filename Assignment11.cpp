@@ -11,6 +11,36 @@
 #include <numeric>
 #include <StringHandler.h>
 
+// C++ program to find LCM of n elements
+//#include <bits/stdc++.h>
+using namespace std;
+
+typedef long long int ll;
+
+// Utility function to find
+// GCD of 'a' and 'b'
+int gcd(int a, int b)
+{
+  if (b == 0)
+    return a;
+  return gcd(b, a % b);
+}
+
+// Returns LCM of array elements
+ll findlcm(int arr[], int n)
+{
+  // Initialize result
+  ll ans = arr[0];
+
+  // ans contains LCM of arr[0], ..arr[i]
+  // after i'th iteration,
+  for (int i = 1; i < n; i++)
+    ans = (((arr[i] * ans)) /
+      (gcd(arr[i], ans)));
+
+  return ans;
+}
+
 class TestAssignment11 : public TAdventClass
 {
 
@@ -26,11 +56,13 @@ TEST_F(TestAssignment11, TestDayEleven)
   class TMonkey
   {
   public:
-    TMonkey(wxInt64 Index, TCVector<TCVector<TItemInfo>>* Items)
+    TMonkey(TCVector<TCVector<TItemInfo>>* Items, wxInt64* LCD, bool WithDivision = false)
     {
-      
-      this->Index = Index;
+
+      this->Index = Items->size();
       this->Items = Items;
+      this->LCD = LCD;
+      this->WithDivision = WithDivision;
     }
 
     void Parse(wxString Line)
@@ -76,16 +108,17 @@ TEST_F(TestAssignment11, TestDayEleven)
       for (auto& Item : UpdatedWorryLevel)
       {
         Items->at(Item.NextMonkey).push_back(Item);
-      }      
+      }
     }
 
     TItemInfo PerformActions(wxInt64 Value) const
     {
-      //if (Index != (Real ? 6 : 2))
+      Value = DoOperation(Value);
+      Value = Value % (*LCD);//if (Index != (Real ? 6 : 2))
+      if (WithDivision)
       {
-        Value = DoOperation(Value);
+        Value = Value / 3;
       }
-      Value = Value / 3;
       auto Target = ((Value % Divider) == 0LL) ? TargetTrue : TargetFalse;
       if (Value < 0)
       {
@@ -93,9 +126,9 @@ TEST_F(TestAssignment11, TestDayEleven)
       }
       return { Value, Target };
     }
-    
 
-    wxInt64 DoOperation(wxInt64 Value) const 
+
+    wxInt64 DoOperation(wxInt64 Value) const
     {
       switch (Index)
       {
@@ -131,49 +164,63 @@ TEST_F(TestAssignment11, TestDayEleven)
     wxInt64 TargetTrue;
     wxInt64 TargetFalse;
     wxInt64 InspectionCycles = 0;
+    wxInt64* LCD = nullptr;
+    bool WithDivision = false;
   };
 
   TCVector<TMonkey> Monkeys;
   TCVector<TCVector<TItemInfo>> ItemList;
+
+  TCVector<TMonkey> Monkeys20;
+  TCVector<TCVector<TItemInfo>> ItemList20;
+
   auto Input = ReadFileLines(RealInput());
+  auto TheMagicNumber = 0LL;
   for (auto& Line : Input)
   {
     if (Line.StartsWith("Monkey"))
     {
-      Monkeys.push_back(TMonkey(Monkeys.size(), &ItemList));
+      Monkeys.push_back(TMonkey(&ItemList, &TheMagicNumber));
+      Monkeys20.push_back(TMonkey(&ItemList20, &TheMagicNumber, true));
     }
     else
     {
       Monkeys.back().Parse(Line);
+      Monkeys20.back().Parse(Line);
     }
   }
 
+  TCVector<wxInt32> Divisors;
   for (auto& Monkey : Monkeys)
   {
     RecordProperty(Monkey.AsString());
+    Divisors.Add(Monkey.Divider);
   }
+  TheMagicNumber = findlcm(&Divisors.at(0), Divisors.size());
 
-  for (auto Iterator = 0; 20 > Iterator; ++Iterator)
-  {
-    for (auto& Monkey : Monkeys)
+  auto Store = [&](const TCVector<TMonkey>& List) {
+    TCVector<wxInt64> Cycles;
+    for (auto& Monkey : List)
     {
-      Monkey.OperateItems();
+      Cycles.push_back(RecordProperty("Cycles: ", Monkey.InspectionCycles));
     }
-    /*for (auto& Monkey : Monkeys)
-    {
-      RecordProperty(Monkey.AsString());
-    }*/
+    Cycles.Sort();
+    return Cycles.at(Cycles.size() - 1) * Cycles.at(Cycles.size() - 2);
+  };
 
-  }
-  TCVector<wxInt64> Cycles;
-  for (auto& Monkey : Monkeys)
+  auto ValueAt20 = 0LL;
+  for (auto Iterator = 0; 10000 > Iterator; ++Iterator)
   {
-    Cycles.push_back(RecordProperty("Cycles: ", Monkey.InspectionCycles));
-    //EXPECT_EQ(Expected.at(Monkeys.IndexOf(Monkey)), Cycles.back());
-   // RecordProperty("Content: ", Monkey.AsString());
-
+    if (20 == Iterator)
+    {
+      ValueAt20 = Store(Monkeys20);
+    }
+    for (auto Iterator = 0; Monkeys.size() > Iterator; ++Iterator)
+    {
+      Monkeys[Iterator].OperateItems();
+      Monkeys20[Iterator].OperateItems();
+    }
   }
-  Cycles.Sort();
-  auto Value = Cycles.at(Cycles.size()-1) * Cycles.at(Cycles.size()-2);
-  EXPECT_EQ(54752, RecordProperty("CycleValue: ", Value));
+  EXPECT_EQ(54752, RecordProperty("After 20 Cycles: ", ValueAt20));
+  EXPECT_EQ(13606755504, RecordProperty("After 1000 Cycles: ", Store(Monkeys)));
 }
