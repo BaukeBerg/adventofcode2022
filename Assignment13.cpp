@@ -22,9 +22,9 @@ public:
     if (SubList.size() == 0) {
       return wxNOT_FOUND;
     }
-    return SubList.front()->Value;
+    return SubList.front()->ItemValue();
   }
-  
+
   wxString Print(void) const {
     if ((Value == wxNOT_FOUND)
       && SubList.empty())
@@ -42,41 +42,26 @@ public:
     }
     Cumulative.RemoveLast();
     return Cumulative + "]";
-  }  
-};
-
-bool IsOrdered(const TItem& Left, const TItem& Right)
-{
-
-  auto Ordered = true;
-  for (auto Iterator = 0; Iterator < Minimum(Left.SubList.size(), Right.SubList.size()); ++Iterator)
-  {
-    auto BothValues = Left.SubList.empty() && Right.SubList.empty();
-    if (Left.SubList.at(Iterator)->ItemValue() > Right.SubList.at(Iterator)->ItemValue())
-    {
-      Ordered = false;
-      break;
-    }
   }
-  return Ordered;
+
 };
 
-bool operator<(const TItem& Left, const TItem& Right)
+bool Compare(const TItem& Left, const TItem& Right)
 {
-  return IsOrdered(Left, Right);
+  return (Left.ItemValue() < Right.ItemValue());
 }
 
 class TestAssignment13 : public TAdventClass
 {
 public:
-  TItem Compose(wxString& Input) {
+  TItem Compose(wxString Input) {
     TItem List;
     TCVector<TItem*> Selected = { &List };
     auto First = true;
     while (0 < Input.length())
     {
       if (Input.StartsWith('['))
-      { 
+      {
         if (!First)
         {
           auto NewList = Selected.back()->SubList.Add(new TItem());
@@ -116,8 +101,6 @@ TEST_F(TestAssignment13, TestSamples)
   using TTestPair = struct {
     wxString Left; wxString Right;
   };
-  
-  
 
   auto Input = ReadFileLines(RealInput());
   TCVector<TTestPair> Pairs;
@@ -134,14 +117,38 @@ TEST_F(TestAssignment13, TestSamples)
     auto Right = Compose(Item.Right);
     RecordProperty("Left: ", Left.Print());
     RecordProperty("Right: ", Right.Print());
-    if (RecordProperty("Compare:", IsOrdered(Left, Right)))
+    if (RecordProperty("Compare:", (1 == Compare(Left, Right))))
     {
       SummedValue += PairsIndices;
     }
     ++PairsIndices;
   }
-   
+
+  TCVector<TItem> AllItems;
+  AllItems.push_back(Compose("[[6]]"));
+  AllItems.push_back(Compose("[[2]]"));
+  for (auto& Item : Input) {
+    AllItems.push_back(Compose(Item));
+  }
+
+
+  std::sort(AllItems.begin(), AllItems.end(), Compare);
+
+  auto Index1 = 0;
+  auto Index2 = 0;
+  for (auto Iterator = 0U; AllItems.size() > Iterator; ++Iterator)
+  {
+    if (AllItems.at(Iterator).Print() == "[[6]]") {
+      Index1 = Iterator + 1;
+    }
+    if (AllItems.at(Iterator).Print() == "[[2]]") {
+      Index2 = Iterator + 1;
+    }
+
+  }
 
   EXPECT_EQ(5393, RecordProperty("Ordered Indices:", SummedValue));
-  
+  EXPECT_EQ(26712, RecordProperty("IndexedItems", Index1 * Index2));
+
+
 }
