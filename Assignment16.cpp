@@ -41,9 +41,9 @@ public:
   TCVector<TValve*> Routes;
 };
 
-TEST_F(TestAssignment16, RunDay)
+TEST_F(TestAssignment16, DISABLED_RunDay)
 {
-  for (auto& Input : ReadFileLines(MiniInput()))
+  for (auto& Input : ReadFileLines(RealInput()))
   {
     auto In = Split(Input, ";");
     In[0].Replace("Valve ", "");
@@ -124,13 +124,20 @@ TEST_F(TestAssignment16, RunDay)
               TheTrail->FlowRate += Klep->FlowRate;
               TheTrail->Remaining -= 2;
             }
-            NextTrails.push_back(Trail);
-            auto TheTrail = NextTrails.end()-1;
-            TheTrail->Current = Klep;
-            TheTrail->Remaining--;
-            TheTrail->TotalFlow += TheTrail->FlowRate;
-            TheTrail->Visited.push_back(Klep);
-            Changing = true;
+            else if (!Trail.Visited.Contains(Klep))
+            {
+              NextTrails.push_back(Trail);
+              auto TheTrail = NextTrails.end() - 1;
+              TheTrail->Current = Klep;
+              TheTrail->Remaining--;
+              TheTrail->TotalFlow += TheTrail->FlowRate;
+              TheTrail->Visited.push_back(Klep);
+              Changing = true;
+            }
+            else
+            {
+              ;
+            }
           }
         }
       }
@@ -147,8 +154,6 @@ TEST_F(TestAssignment16, RunDay)
     MaxFlow = Maximum(Trail.TotalFlow, MaxFlow);
   }
   RecordProperty("Max flow rate: ", MaxFlow);
-
-
 
   for (auto Iterator = 0; Iterator < 30; ++Iterator)
   {
@@ -185,4 +190,68 @@ TEST_F(TestAssignment16, RunDay)
 
   RecordProperty("Total relief: ", TotalRelief);
 
+  auto Me = Valve("AA");
+  auto Elephant = Valve("AA");
+}
+
+TEST_F(TestAssignment16, TestDay2)
+{
+
+  for (auto& Input : ReadFileLines(RealInput()))
+  {
+    auto In = Split(Input, ";");
+    In[0].Replace("Valve ", "");
+    Routes.push_back(new TValve());
+    auto pValve = Routes.back();
+    pValve->Name = In[0].Mid(0, 2);
+    pValve->FlowRate = StringToInt<wxInt32>(In[0]);
+    for (auto& Item : Split(In[1], ","))
+    {
+      pValve->Neighbours.push_back(Item.Mid(Item.Len() - 2));
+    }
+  }
+  
+
+  /*
+
+
+        _seen = {}
+        m = 0
+        def f(t, pos, flow) :
+        global m, Vs, Os, _seen
+
+        if _seen.get((t, pos), -1) >= sum(flow) :
+          return
+          _seen[t, pos] = sum(flow)
+
+#
+          if t == 30 :
+            m = max(m, sum(flow))
+            print(m)
+            return
+
+            # Open valve here ?
+            for k in(0, 1) :
+              if k == 0 :
+                if Valve-> Os[pos] or Fs[pos] <= 0 :
+                  continue
+
+                  Os[pos] = True
+                  j = sum(Fs[k] for k, v in Os.items() if v)
+                  f(
+                    t + 1,
+                    pos,
+                    flow + [j]
+                  )
+                  Os[pos] = False
+                  else:
+  j = sum(Fs[k] for k, v in Os.items() if v)
+    for v in Vs[pos] :
+      f(
+        t + 1,
+        v if v is not None else pos,
+        flow + [j]
+      )
+
+      f(1, "AA", [0])*/
 }

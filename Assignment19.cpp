@@ -39,7 +39,6 @@ public:
       Robots[0].Amount++;
       MaxClay = Robots[2].Cost[1];
       MaxOre = std::max({ Robots[1].Cost[0], Robots[2].Cost[0], Robots[3].Cost[0] });
-
     }
 
     wxString ProcessDay(void)
@@ -84,8 +83,7 @@ public:
 
       for (auto Iterator = 0 ; 4 > Iterator ; ++Iterator)
       {
-        Robots[Iterator].Amount += Delta[Iterator];
-        
+        Robots[Iterator].Amount += Delta[Iterator];        
       }
 
       return wxString::Format("Total: Ore %i, Clay %i, Obsidian %i, Geode %i. OreMiner %i, ClayMiner %i, ObsidianMinder %i, GeodeMinder %i"\
@@ -122,22 +120,27 @@ public:
 
 TEST_F(TestAssignment19, TestDayOne)
 {
-  for (auto& Line : ReadFileLines(MiniInput()))
+  for (auto& Line : ReadFileLines(RealInput()))
   {
     Factory.push_back(TBluePrint(Line));
     RecordProperty("Ratio: ", wxString("Clay: ") + Factory.back().TotalClay + ", Ore: " + Factory.back().TotalOre);
+    if (Factory.size() == 3)
+    {
+      break;
+    }
   }
 
   auto TotalQuality = 0;
+  TCVector<wxInt32> TotalGeodes;
   for (auto& Item : Factory)
   {
-    for (auto Minutes = 0; 24 > Minutes; ++Minutes)
+    for (auto Minutes = 0; 32 > Minutes; ++Minutes)
     {
       RecordProperty(wxString::Format("Running day %i. %s", Minutes, Item.ProcessDay()));
     }
     TotalQuality += RecordProperty("Quality of this ID: ", Item.QualityValue());
-    
+    TotalGeodes.push_back(RecordProperty("Opened Geodes of this factory: " , Item.Geode));
   }
   RecordProperty("Total Quality: ", TotalQuality);
-
+  RecordProperty("Total geodes: ", TotalGeodes[0] * TotalGeodes[1] * TotalGeodes[2]);
 }
